@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevReview Test</title>
+<style>
+  body { background: #000; color: #0f0; font-family: monospace; padding: 20px; }
+  textarea { width: 100%; height: 200px; background: #111; color: #0f0; border: 1px solid #0f0; padding: 10px; font-family: monospace; font-size: 14px; }
+  select, button { font-family: monospace; font-size: 14px; padding: 5px; margin-top: 10px; }
+  pre { background: #111; color: #0f0; padding: 10px; border: 1px solid #0f0; white-space: pre-wrap; word-wrap: break-word; }
+</style>
+</head>
+<body>
+<h2>DevReview AI Test</h2>
+
+<label>Language:</label>
+<select id="language">
+  <option>Python</option>
+  <option>C</option>
+  <option>C++</option>
+  <option>Java</option>
+  <option>JavaScript</option>
+  <option>HTML</option>
+</select>
+
+<textarea id="code" placeholder="Paste your code here..."></textarea><br>
+<button onclick="sendCode()">Analyze Code</button>
+
+<h3>AI Response:</h3>
+<pre id="output">Waiting for input...</pre>
+
+<script>
+async function sendCode() {
+  const code = document.getElementById('code').value.trim();
+  const language = document.getElementById('language').value;
+  const output = document.getElementById('output');
+
+  if (!code) {
+    output.textContent = "⚠️ Please paste some code first.";
+    return;
+  }
+
+  output.textContent = "⏳ Sending code to AI...";
+
+  try {
+    const res = await fetch("/api/review", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, language, prompt: `Analyze this ${language} code.` })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    output.textContent = JSON.stringify(data.result, null, 2);
+
+  } catch (err) {
+    output.textContent = `❌ Error: ${err.message}`;
+  }
+}
+</script>
+</body>
+</html>
